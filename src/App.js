@@ -1,5 +1,6 @@
 import React from 'react'
 import Note from './components/Note'
+import Course from './components/Course'
 import { summarizers } from 'istanbul-lib-report'
 
 const App = ({ notes }) => { 
@@ -47,37 +48,7 @@ const App = ({ notes }) => {
       ]
     }
   ]
-
-  const Header = ({name}) =>{
-    return (
-        <div>
-            <h1> {name} </h1>
-        </div>
-    )
-  }
-
-  const Total = ({parts}) => {
-    let total_count = parts.reduce((prev, cur) => {
-      return prev + cur.exercises;
-    }, 0);
-    return (
-      <p>
-        total of {total_count} exercises
-      </p>
-    )
-  }
-  const Course = ({course}) => {
-    return (
-      <div>
-        <Header name={course.name} />
-        <ul>
-          {course.parts.map(part => <li key={part.id}>{part.name} {part.exercises}</li>)}
-        </ul>
-        <Total parts={course.parts} />
-      </div>
-    )
-  }
-
+  
   return (
     <div>
       {courses.map(course => Course({course}))}
