@@ -1,90 +1,79 @@
-import React, { useState, useEffect } from 'react'
-import Note from './components/Note'
-import axios from 'axios'
-import noteService from './services/notes' 
+import React, { useState } from 'react'
 
 const App = () => {
-  const [notes, setNotes] = useState([]) 
-  const [newNote, setNewNote] = useState('') 
-  const [showAll, setShowAll] = useState(true)
+  const [ persons, setPersons] = useState([
+    { name: 'Arto Hellas', number :'12345'},
+    { name: 'Ada Lovelace', number: '39-44-5323523' },
+    { name: 'Dan Abramov', number: '12-43-234345' },
+    { name: 'Mary Poppendieck', number: '39-23-6423122' }
+  ]) 
+  const [ newName, setNewName ] = useState('')
+  const [ newNumber, setNewNumber] = useState('')
+  const [ targetName, setTargetName] = useState('')
 
-  useEffect(() => {
-    noteService
-      .getAll()
-      .then(initialNotes => setNotes(initialNotes))
-  }, [])
-
-  const notesToShow = showAll
-    ? notes
-    : notes.filter(note => note.important)
-
-  const rows = () => notesToShow.map(note =>
-    <Note
-      key={note.id}
-      note={note}
-      toggleImportance={() => toggleImportanceOf(note.id)}
-    />
-  )
-  
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value)
-  }
-
-  const addNote = (event) => {
+  const addName = (event) => {
     event.preventDefault()
-    const noteObject = {
-      content: newNote,
-      date: new Date().toISOString(),
-      important: Math.random() > 0.5,
-      id: notes.length + 1,
+    if (persons.map((person) => person.name).indexOf(newName) > -1){
+      window.alert(`${newName} is already added to phonebook`)
+    } else {
+      const personObject = {
+        name : newName,
+        number: newNumber
+      }
+      setPersons(persons.concat(personObject))
+      setNewName('')
+      setNewNumber('')
     }
-
-    noteService
-      .create(noteObject)
-      .then(data => {
-        setNotes(notes.concat(data))
-        setNewNote('')
-      })
   }
 
-  const toggleImportanceOf = id => {
-    const note = notes.find(n => n.id === id)
-    const changedNote = { ...note, important: !note.important }
-
-    noteService
-      .update(id, changedNote)
-      .then(returnedNote => {
-        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
-      })
-      .catch(error => {
-        alert(
-          `the note '${note.content}' was already deleted from server`
-        )
-        setNotes(notes.filter(n => n.id !== id))
-      })
-      
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
   }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const filterName = (event) =>{
+    setTargetName(event.target.value)
+  }
+
+  const rows = () =>
+  persons.filter(person => person.name.toLowerCase().indexOf(targetName)>= 0)
+  .map(person => <li>{person.name} {person.number}</li>)
 
   return (
     <div>
-      <h1>Notes</h1>
+      <h2>Phonebook</h2>
       <div>
-        <button onClick={() => setShowAll(!showAll)}>
-          show {showAll ? 'important' : 'all'}
-        </button>
+        <form>
+          <div>
+            filter shown with: <input
+            value={targetName}
+            onChange={filterName}/>
+          </div>
+        </form>
       </div>
-      <ul>
-        {rows()}
-      </ul>
-      <form onSubmit={addNote}>
-        <input
-          value={newNote} 
-          onChange={handleNoteChange}
-        />
-        <button type="submit">save</button>
+      <h2>add a new number</h2>
+      <form onSubmit={addName}>
+        <div>
+          name: <input 
+            value={newName}
+            onChange={handleNameChange}
+            /><div>
+          number: <input 
+            value={newNumber}
+            onChange={handleNumberChange}/>
+            </div>
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
       </form>
+      <h2>Numbers</h2>
+      <ul>{rows()}</ul>
     </div>
   )
 }
 
-export default App 
+export default App
